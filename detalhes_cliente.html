@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Cliente - Imobiliária</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/app.js"></script>
+</head>
+<body>
+    <div class="sidebar">
+        <h2 style="text-align:center; color:white; padding:20px;">Menu</h2>
+        <a href="/static/lista_clientes.html">⬅️ Voltar para Lista</a>
+    </div>
+
+    <div class="main">
+        <div class="card">
+            <h2>Editar Dados do Cliente</h2>
+            <p style="color: #666; margin-bottom: 20px;">Altere as informações abaixo e clique em salvar.</p>
+            <hr>
+            
+            <div id="formularioEdicao" style="margin-top: 20px;">
+                <label>Nome Completo:</label>
+                <input type="text" id="edit_nome" style="width: 100%; margin-bottom: 15px;">
+
+                <label>Telefone:</label>
+                <input type="text" id="edit_telefone" style="width: 100%; margin-bottom: 15px;">
+
+                <label>E-mail:</label>
+                <input type="email" id="edit_email" style="width: 100%; margin-bottom: 15px;">
+
+                <button id="btnSalvar" style="background: #27ae60; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%;">
+                    💾 Salvar Alterações
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const clienteId = params.get("id");
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            if (!clienteId) return alert("Cliente não encontrado!");
+
+            // Busca os dados atuais do cliente para preencher o form
+            const cliente = await get(`/clientes/${clienteId}`);
+            
+            if (cliente) {
+                document.getElementById("edit_nome").value = cliente.nome;
+                document.getElementById("edit_telefone").value = cliente.telefone;
+                document.getElementById("edit_email").value = cliente.email || "";
+            }
+        });
+
+        // Evento do botão salvar
+        document.getElementById("btnSalvar").addEventListener("click", async () => {
+            const dadosAtualizados = {
+                nome: document.getElementById("edit_nome").value,
+                telefone: document.getElementById("edit_telefone").value,
+                email: document.getElementById("edit_email").value
+            };
+
+            // Chama a função que já existe no seu app.js (ou vamos conferir abaixo)
+            await salvarEdicaoCliente(clienteId, dadosAtualizados);
+        });
+    </script>
+</body>
+</html>

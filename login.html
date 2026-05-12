@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Imobiliária</title>
+    
+    <!-- Link direto para o JS externo (opcional se as funções estiverem abaixo, mas mantido por segurança) -->
+    <script src="http://127.0.0.1:8001/static/app.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f0e6, #e6d8c3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 380px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-img {
+            width: 80px;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #4b3f2f;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #d6c3a3;
+            background: #f9f6f1;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #a1866f;
+            box-shadow: 0 0 5px rgba(161, 134, 111, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: #a1866f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #8c725c;
+        }
+
+        .link-btn {
+            background: transparent;
+            color: #6b5b45;
+            margin-top: 10px;
+            font-weight: normal;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="logo-container">
+        <!-- Caminho completo para garantir carregamento no executável -->
+        <img src="http://127.0.0.1:8001/static/logo.png" alt="Andrade Tech" class="logo-img">
+    </div>
+
+    <!-- BOX DE LOGIN -->
+    <div id="loginBox">
+        <h2>Acessar Sistema</h2>
+        <input type="email" id="email" placeholder="E-mail">
+        <input type="password" id="senha" placeholder="Senha">
+        <button onclick="login()">Entrar</button>
+
+        <button class="link-btn" onclick="mostrarCadastro()">
+            Ainda não tem conta? Criar agora
+        </button>
+    </div>
+
+    <!-- BOX DE CADASTRO -->
+    <div id="cadastroBox" class="hidden">
+        <h2>Cadastrar Corretor</h2>
+        <input id="nomeRegistro" placeholder="Nome Completo">
+        <input id="emailRegistro" type="email" placeholder="E-mail profissional">
+        <input id="senhaRegistro" type="password" placeholder="Crie uma senha">
+
+        <button onclick="executarCadastro()">Finalizar Cadastro</button>
+
+        <button class="link-btn" onclick="voltarLogin()">
+            Já tenho conta. Voltar ao login
+        </button>
+    </div>
+</div>
+
+<script>
+    // --- CONTROLE DE INTERFACE ---
+    function mostrarCadastro(){
+        document.getElementById("loginBox").classList.add("hidden");
+        document.getElementById("cadastroBox").classList.remove("hidden");
+    }
+
+    function voltarLogin(){
+        document.getElementById("cadastroBox").classList.add("hidden");
+        document.getElementById("loginBox").classList.remove("hidden");
+    }
+
+    // --- LÓGICA DE LOGIN ---
+    async function login() {
+        const email = document.getElementById("email").value;
+        const senha = document.getElementById("senha").value;
+
+        if (!email || !senha) {
+            alert("Por favor, preencha todos os campos.");
+            return;
+        }
+
+        try {
+            const res = await fetch("http://127.0.0.1:8001/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, senha })
+            });
+
+            // Procure essa linha no seu script de login e substitua:
+            if (res.ok) {
+                const data = await res.json();
+                localStorage.setItem("usuario", JSON.stringify(data.usuario));
+                
+                // Mantemos /home porque o Python agora sabe que /home entrega o dashboard.html
+                window.location.href = "http://127.0.0.1:8001/home";
+            
+            } else {
+                alert("E-mail ou senha incorretos!");
+            }
+        } catch (error) {
+            console.error("Erro na requisição:", error);
+            alert("Não foi possível conectar ao servidor backend.");
+        }
+    }
+
+    // --- LÓGICA DE CADASTRO ---
+    async function executarCadastro() {
+        const nome = document.getElementById("nomeRegistro").value;
+        const email = document.getElementById("emailRegistro").value;
+        const senha = document.getElementById("senhaRegistro").value;
+        
+        if(!nome || !email || !senha) return alert("Preencha todos os campos de cadastro!");
+
+        try {
+            const res = await fetch("http://127.0.0.1:8001/auth/registrar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nome, email, senha })
+            });
+
+            if (res.ok) {
+                alert("✅ Corretor cadastrado com sucesso!");
+                voltarLogin();
+            } else {
+                const data = await res.json();
+                alert("❌ Erro: " + (data.detail || "Falha ao cadastrar"));
+            }
+        } catch (error) {
+            alert("Erro ao conectar com o servidor.");
+        }
+    }
+
+    // Atalho Enter
+    document.getElementById("senha").addEventListener("keypress", (e) => {
+        if(e.key === "Enter") login();
+    });
+</script>
+
+</body>
+</html>
