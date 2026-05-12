@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Mapa de Imóveis | Imobiliária</title>
+    
+    <!-- 1. CSS do Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        /* Reset básico */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #fdfaf5; /* Fundo levemente creme para combinar com o tema */
+            display: flex; 
+        }
+
+        /* SIDEBAR COM AS CORES DO PROJETO */
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background: #4b3f2f; /* Marrom escuro da sua identidade */
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding-top: 20px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar a {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 15px;
+            color: #dcd3c1; /* Bege claro para o texto */
+            display: block;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar a:hover {
+            background: #5d4f3b; /* Marrom um pouco mais claro no hover */
+            color: #ffffff;
+            border-left: 4px solid #c9a050; /* Detalhe em dourado/bege vivo */
+            padding-left: 30px;
+        }
+
+        .sidebar a.active {
+            background: #5d4f3b;
+            color: white;
+            border-left: 4px solid #c9a050;
+        }
+
+        /* CONTEÚDO PRINCIPAL */
+        .main-content {
+            margin-left: 260px; 
+            padding: 40px;
+            width: calc(100% - 260px);
+        }
+
+        h2 { 
+            margin-bottom: 25px; 
+            color: #4b3f2f; 
+            font-weight: 600;
+            border-bottom: 2px solid #e9e0d2;
+            padding-bottom: 10px;
+        }
+
+        #mapa { 
+            height: 75vh; 
+            width: 100%; 
+            border-radius: 15px; 
+            box-shadow: 0 12px 30px rgba(75, 63, 47, 0.15); 
+            border: 8px solid white;
+        }
+
+        /* Customização dos Popups do Leaflet para o tema */
+        .leaflet-popup-content-wrapper {
+            background: #ffffff;
+            color: #4b3f2f;
+            border-radius: 10px;
+            padding: 5px;
+        }
+        .leaflet-popup-tip { background: #ffffff; }
+    </style>
+</head>
+<body>
+
+    <!-- LISTA LATERAL DE NAVEGAÇÃO -->
+    <div class="sidebar">
+        <div style="text-align: center; padding: 0 0 20px 0;">
+            <img src="/static/logo.png" style="width: 85px; margin-bottom: 10px;">
+            <h2 style="font-size: 0.9rem; color: #dcd3c1; margin-top: 5px; border: none; letter-spacing: 1px; text-transform: uppercase;">
+                Mapa da Cidade
+            </h2>
+        </div>
+        
+        <hr style="opacity: 0.1; margin: 0 25px 20px 25px;">
+
+        <a href="/static/dashboard.html">🏠 Dashboard</a>
+        <a href="/static/cadastro_imovel.html">➕ Novo Imóvel</a>
+        <a href="/static/buscar_imoveis.html">🔎 Buscar Imóveis</a>
+        <a href="/static/cadastro_cliente.html">👤 Novo Cliente</a>
+        <a href="/static/lista_clientes.html">📋 Lista Clientes</a>
+        <a href="/static/mapa_imoveis.html" class="active">📍 Mapa de Imóveis</a>
+        
+        <div style="position: absolute; bottom: 20px; width: 100%;">
+            <a href="/static/login.html" style="color: #e67e22; border: none;">🚪 Sair do Sistema</a>
+        </div>
+    </div>
+
+    <!-- CONTEÚDO DA PÁGINA -->
+    <div class="main-content">
+        <h2>📍 Localização dos Imóveis</h2>
+        <div id="mapa"></div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/static/app.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Inicializa o mapa
+            const map = L.map('mapa').setView([-18.9186, -48.2772], 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            try {
+                const imoveis = await get("/imoveis");
+
+                if (imoveis && imoveis.length > 0) {
+                    imoveis.forEach(i => {
+                        if (i.latitude && i.longitude) {
+                            const valorFormatado = new Intl.NumberFormat('pt-BR', {
+                                style: 'currency', currency: 'BRL'
+                            }).format(i.valor);
+
+                            // Marcador personalizado
+                            L.marker([i.latitude, i.longitude])
+                             .addTo(map)
+                             .bindPopup(`
+                                <div style="min-width: 200px; font-family: 'Segoe UI', sans-serif;">
+                                    <strong style="font-size: 1.1rem; color: #4b3f2f;">${i.titulo}</strong><br>
+                                    <b style="color: #27ae60; font-size: 1.1rem; display: block; margin: 4px 0;">${valorFormatado}</b>
+                                    <p style="font-size: 0.85rem; color: #6e5e4a; line-height: 1.4; margin-bottom: 8px;">
+                                        ${i.descricao || "Imóvel disponível para visitação."}
+                                    </p>
+                                    <div style="border-top: 1px solid #eee; padding-top: 8px; font-size: 0.75rem; color: #a19381;">
+                                        📍 ${i.endereco_rua || i.bairro}, ${i.endereco_numero || 'S/N'}<br>
+                                        Bairro: ${i.bairro}
+                                    </div>
+                                </div>
+                             `);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("Erro ao carregar dados do mapa:", error);
+            }
+        });
+    </script>
+</body>
+</html>

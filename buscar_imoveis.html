@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Buscar Imóveis - Uberlândia</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/app.js"></script>
+    <style>
+        /* Estilo extra para o formulário de busca */
+        .busca-box {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+        .busca-box button {
+            height: 45px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div style="text-align: center; padding: 20px 0;">
+        <img src="/static/logo.png" class="logo-img" style="width: 80px; margin-bottom: 10px;">
+        <h2 style="font-size: 1.2rem; color: #fff;">Buscar Imóvel</h2>
+    </div>
+    <hr style="opacity: 0.2; margin-bottom: 20px;">
+    <a href="/static/dashboard.html">🏠 Dashboard</a>
+    <a href="/static/cadastro_imovel.html">➕ Imóvel</a>
+    <a href="/static/buscar_imoveis.html" class="active">🔎 Buscar</a> <!-- Adicione uma classe active se quiser destacar -->
+    <a href="/static/cadastro_cliente.html">👤 Cadastrar Cliente</a>
+    <a href="/static/lista_clientes.html">📋 Clientes</a>
+    <a href="/static/mapa_imoveis.html">📍 Mapa de Imóveis</a>
+    <a href="/static/login.html">🚪 Sair</a>
+</div>
+
+<div class="main">
+
+    <div class="card">
+        <h2>Encontre o Imóvel Ideal</h2>
+
+        <div class="busca-box">
+            <div>
+                <label>Tipo</label>
+                <select id="tipoBusca">
+                    <option value="">Todos</option>
+                    <option value="venda">Venda</option>
+                    <option value="aluguel">Aluguel</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Bairro</label>
+                <select id="bairroBusca">
+                    <option value="">Todos os Bairros</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Região</label>
+                <select id="regiaoBusca">
+                    <option value="">Todas as Regiões</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Valor Máximo</label>
+                <input id="valorMax" type="number" placeholder="Ex: 500000">
+            </div>
+
+            <button onclick="buscarImoveis()">🔍 Buscar</button>
+        </div>
+    </div>
+
+    <div id="listaImoveis" class="lista">
+        <p style="text-align: center; padding: 50px; color: #666;">Carregando imóveis...</p>
+    </div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        // 1. Popula os selects de Bairro e Região
+        if (typeof popularFiltros === "function") {
+            await popularFiltros();
+        }
+        
+        // 2. Chama a função CORRETA que está no app.js para listar tudo ao abrir
+        if (typeof buscarImoveis === "function") {
+            buscarImoveis(); 
+        }
+    } catch (e) {
+        console.error("Erro na inicialização:", e);
+        document.getElementById("listaImoveis").innerHTML = "<p>Erro ao carregar dados.</p>";
+    }
+});
+</script>
+
+</body>
+</html>

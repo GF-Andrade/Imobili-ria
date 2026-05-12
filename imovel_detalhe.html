@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Detalhes do Imóvel</title>
+
+<link rel="stylesheet" href="/style.css">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<div class="logo">
+Imobiliária
+</div>
+
+<div class="menu">
+
+<a href="/dashboard.html">🏠 Dashboard</a>
+<a href="/cadastro_imovel.html">➕ Imóvel</a>
+<a href="/buscar_imoveis.html">🔎 Buscar</a>
+<a href="/cadastro_cliente.html">👤 Cadastrar Cliente</a>
+<a href="/lista_clientes.html">📋 Clientes</a>
+<a href="/static/mapa_imoveis.html">📍 Mapa de Imóveis</a>
+<a href="/login.html">🚪 Sair</a>
+
+</div>
+
+</div>
+
+<div class="main">
+
+<h1>Detalhes do Imóvel</h1>
+
+<div class="card">
+
+<h2 id="titulo"></h2>
+
+<p id="tipo"></p>
+
+<p id="bairro"></p>
+
+<p id="regiao"></p>
+
+<p id="valor"></p>
+
+</div>
+
+<div class="cards">
+
+<div class="card">
+
+<h3>Quartos</h3>
+
+<p id="quartos"></p>
+
+</div>
+
+<div class="card">
+
+<h3>Banheiros</h3>
+
+<p id="banheiros"></p>
+
+</div>
+
+<div class="card">
+
+<h3>Garagem</h3>
+
+<p id="vagas"></p>
+
+</div>
+
+</div>
+
+<h2>Fotos</h2>
+
+<div id="galeria" class="imoveis-grid"></div>
+
+<button onclick="contatar()">Falar com corretor</button>
+
+</div>
+
+<script src="app.js"></script>
+
+<script>
+
+async function carregarDetalhes() {
+    // 1. Pega o ID do imóvel da URL (ex: detalhes.html?id=12)
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+
+    if (!id) {
+        alert("Imóvel não encontrado!");
+        window.location.href = "/buscar_imoveis.html";
+        return;
+    }
+
+    try {
+        // 2. Busca os dados no backend (usando a função get do seu app.js)
+        const imovel = await get(`/imoveis/${id}`);
+
+        // 3. Preenche os campos de texto
+        document.getElementById("titulo").innerText = imovel.titulo;
+        document.getElementById("tipo").innerText = `Tipo: ${imovel.tipo.toUpperCase()}`;
+        document.getElementById("bairro").innerText = `Bairro: ${imovel.bairro}`;
+        document.getElementById("regiao").innerText = `Região: ${imovel.regiao}`;
+        document.getElementById("valor").innerText = `R$ ${Number(imovel.valor).toLocaleString('pt-BR')}`;
+        
+        document.getElementById("quartos").innerText = imovel.quartos;
+        document.getElementById("banheiros").innerText = imovel.banheiros;
+        document.getElementById("vagas").innerText = imovel.vagas;
+
+        // 4. Carrega a galeria de fotos
+        const galeria = document.getElementById("galeria");
+        if (imovel.fotos) {
+            const fotos = imovel.fotos.split(",");
+            galeria.innerHTML = fotos.map(url => `
+                <div class="card">
+                    <img src="${url}" style="width:100%; border-radius:8px; height:200px; object-fit:cover;">
+                </div>
+            `).join("");
+        } else {
+            galeria.innerHTML = "<p>Nenhuma foto disponível.</p>";
+        }
+
+    } catch (error) {
+        console.error("Erro ao carregar detalhes:", error);
+        alert("Erro ao carregar os dados do imóvel.");
+    }
+}
+
+// Função para o botão de contato
+function contatar() {
+    const titulo = document.getElementById("titulo").innerText;
+    const bairro = document.getElementById("bairro").innerText;
+    const mensagem = encodeURIComponent(`Olá! Gostaria de mais informações sobre o imóvel "${titulo}" no ${bairro}.`);
+    // Altere para o seu número real de Uberlândia (34)
+    window.open(`https://wa.me/5534999999999?text=${mensagem}`, "_blank");
+}
+
+</script>
+
+</body>
+
+</html>

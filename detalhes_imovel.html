@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    <title>Detalhes do Imóvel - Imobiliária</title>
+    <style>
+        /* Galeria Estilizada */
+        .galeria-container { 
+            display: flex; 
+            gap: 15px; 
+            overflow-x: auto; 
+            padding: 20px 0; 
+            scroll-behavior: smooth; 
+            scrollbar-width: thin;
+            scrollbar-color: #a1866f #f4f1ee;
+        }
+        .galeria-container::-webkit-scrollbar { height: 8px; }
+        .galeria-container::-webkit-scrollbar-thumb { background: #a1866f; border-radius: 10px; }
+        
+        .galeria-container img { 
+            height: 450px; 
+            border-radius: 12px; 
+            object-fit: cover; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            transition: transform 0.3s;
+        }
+        .galeria-container img:hover { transform: scale(1.02); }
+
+        .specs { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+            gap: 20px; 
+            background: #f8f9fa; 
+            padding: 25px; 
+            border-radius: 12px; 
+            margin: 25px 0; 
+            border: 1px solid #eee;
+            text-align: center;
+        }
+        
+        .price { font-size: 2.5rem; color: #4b3f2f; font-weight: bold; margin: 15px 0; }
+        
+        .btn-whatsapp {
+            display: inline-block;
+            background-color: #25d366;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: background 0.3s;
+        }
+        .btn-whatsapp:hover { background-color: #128c7e; }
+    </style>
+</head>
+<body>
+    <div class="main" style="margin: 0 auto; padding: 40px 20px; max-width: 1200px;">
+        <a href="/static/buscar_imoveis.html" style="text-decoration: none; color: #a1866f; font-weight: bold;">
+            ⬅️ Voltar para a lista de imóveis
+        </a>
+        
+        <div id="dadosImovel">
+            <p style="text-align: center; padding: 50px;">Carregando informações do imóvel...</p>
+        </div>
+    </div>
+
+    <!-- O app.js contém a variável API = "http://127.0.0.1:8001" -->
+    <script src="/static/app.js"></script>
+    <script>
+    async function carregar() {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get("id");
+            
+            if (!id) {
+                window.location.href = "/static/buscar_imoveis.html";
+                return;
+            }
+
+            // Busca os dados usando a variável API definida no app.js
+            const response = await fetch(`${API}/imoveis/${id}`);
+            if (!response.ok) throw new Error("Imóvel não encontrado");
+            
+            const imovel = await response.json();
+
+            // Configurações do WhatsApp
+            const foneImobiliaria = "5534999999999"; // Substitua pelo seu número
+            const msgWhatsapp = encodeURIComponent(`Olá! Gostaria de mais informações sobre o imóvel: ${imovel.titulo} (ID: ${imovel.id}).`);
+
+            // Tratamento de Fotos
+            const fotosRaw = imovel.fotos ? imovel.fotos.split(",") : [];
+            const fotos = fotosRaw.map(url => url.startsWith('http') ? url : `${API}${url}`);
+            
+            // Montagem do Endereço
+            const enderecoCompleto = `${imovel.endereco_rua || 'Rua não informada'}, ${imovel.endereco_numero || 'S/N'} - ${imovel.bairro}`;
+
+            // Injeção do HTML
+            document.getElementById("dadosImovel").innerHTML = `
+                <div style="margin-top:30px;">
+                    <span style="background:#a1866f; color:white; padding:5px 12px; border-radius:20px; font-size:0.8rem; text-transform:uppercase;">
+                        ${imovel.tipo}
+                    </span>
+                    <h1 style="font-size: 2.5rem; margin: 10px 0 5px 0;">${imovel.titulo}</h1>
+                    <p style="font-size: 1.2rem; color: #444; margin-bottom: 5px;">
+                        📍 <strong>${enderecoCompleto}</strong>
+                    </p>
+                    <p style="font-size: 1rem; color: #666;">Uberlândia - ${imovel.regiao}</p>
+                </div>
+                
+                <div class="galeria-container">
+                    ${fotos.length > 0 
+                        ? fotos.map(url => `<img src="${url}" alt="Foto" onerror="this.src='https://via.placeholder.com/800x450?text=Imagem+Indisponível'">`).join("")
+                        : '<img src="https://via.placeholder.com/800x450?text=Sem+Fotos+Disponíveis">'
+                    }
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
+                    <div class="price">R$ ${Number(imovel.valor).toLocaleString('pt-BR')}</div>
+                    <a href="https://wa.me/${foneImobiliaria}?text=${msgWhatsapp}" target="_blank" class="btn-whatsapp">
+                        💬 Chamar no WhatsApp
+                    </a>
+                </div>
+                
+                <div class="specs">
+                    <div><span style="font-size:1.5rem">🛏️</span><br><strong>Quartos</strong><br>${imovel.quartos || 0}</div>
+                    <div><span style="font-size:1.5rem">🚿</span><br><strong>Banheiros</strong><br>${imovel.banheiros || 0}</div>
+                    <div><span style="font-size:1.5rem">🚗</span><br><strong>Vagas</strong><br>${imovel.vagas || 0}</div>
+                    <div><span style="font-size:1.5rem">📏</span><br><strong>Código</strong><br>#${imovel.id}</div>
+                </div>
+
+                <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div style="line-height: 1.6; color: #444; background: white; padding: 20px; border-radius: 12px; border: 1px solid #eee;">
+                        <h3 style="border-bottom: 2px solid #f4f1ee; padding-bottom: 10px; margin-bottom: 15px;">Descrição do Imóvel</h3>
+                        <p style="white-space: pre-wrap;">${imovel.descricao || "Nenhuma descrição detalhada fornecida."}</p>
+                    </div>
+
+                    <div style="line-height: 1.6; color: #444; background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #eee;">
+                        <h3 style="border-bottom: 2px solid #f4f1ee; padding-bottom: 10px; margin-bottom: 15px;">Localização Técnica</h3>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin-bottom: 10px;"><strong>Logradouro:</strong> ${imovel.endereco_rua || 'N/A'}</li>
+                            <li style="margin-bottom: 10px;"><strong>Número:</strong> ${imovel.endereco_numero || 'N/A'}</li>
+                            <li style="margin-bottom: 10px;"><strong>Bairro:</strong> ${imovel.bairro}</li>
+                            <li style="margin-bottom: 10px;"><strong>Região:</strong> ${imovel.regiao}</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            document.title = `${imovel.titulo} - Andrade Tech`;
+
+        } catch (error) {
+            console.error("Erro ao carregar detalhes:", error);
+            document.getElementById("dadosImovel").innerHTML = `
+                <div style="text-align:center; padding:50px;">
+                    <h2>⚠️ Imóvel não encontrado</h2>
+                    <p>Ocorreu um erro ao carregar os dados. Tente novamente mais tarde.</p>
+                    <a href="/static/buscar_imoveis.html">Voltar para a busca</a>
+                </div>
+            `;
+        }
+    }
+    
+    document.addEventListener("DOMContentLoaded", carregar);
+</script>
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        carregarDetalhesImovel();
+    });
+</script>
+</body>
+</html>

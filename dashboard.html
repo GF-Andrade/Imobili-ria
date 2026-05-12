@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Andrade Tech Imóveis</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- O script app.js deve vir antes para carregar as funções de API -->
+    <script src="/static/app.js"></script>
+</head>
+<body>
+
+<div class="sidebar">
+    <div style="text-align: center; padding: 20px 0;">
+        <img src="/static/logo.png" class="logo-img" style="width: 80px;" alt="Logo">
+        <h2 style="font-size: 1.1rem; color: #fff; margin-top: 10px;">Imobiliária</h2>
+    </div>
+    <hr style="opacity: 0.1; margin: 0 20px 20px 20px;">
+    
+    <a href="/static/dashboard.html" class="active">🏠 Dashboard</a>
+    <a href="/static/cadastro_imovel.html">➕ Novo Imóvel</a>
+    <a href="/static/buscar_imoveis.html">🔎 Buscar Imóveis</a>
+    <a href="/static/cadastro_cliente.html">👤 Cadastrar Cliente</a>
+    <a href="/static/lista_clientes.html">📋 Lista de Clientes</a>
+    <a href="/static/mapa_imoveis.html">📍 Mapa de Imóveis</a>
+    <!-- Ao sair, limpamos o login para segurança -->
+    <a href="/static/login.html" onclick="localStorage.clear()">🚪 Sair</a>
+</div>
+
+<div class="main">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1>Resumo do Sistema</h1>
+        <p id="boasVindas" style="color: #666; font-weight: bold;">Carregando...</p>
+    </div>
+
+    <!-- Cards de Resumo -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+        <div class="card" style="text-align: center;">
+            <h3>Total de Imóveis</h3>
+            <p id="totalImoveis" style="font-size: 2rem; font-weight: bold;">0</p>
+        </div>
+
+        <div class="card" style="text-align: center; border-left: 5px solid #2ecc71;">
+            <h3>Para Aluguel</h3>
+            <p id="totalAluguel" style="font-size: 2rem; font-weight: bold; color: #2ecc71;">0</p>
+        </div>
+
+        <div class="card" style="text-align: center; border-left: 5px solid #3498db;">
+            <h3>Para Venda</h3>
+            <p id="totalVenda" style="font-size: 2rem; font-weight: bold; color: #3498db;">0</p>
+        </div>
+
+        <div class="card" style="text-align: center; border-left: 5px solid #f1c40f;">
+            <h3>Clientes</h3>
+            <p id="totalClientes" style="font-size: 2rem; font-weight: bold; color: #f1c40f;">0</p>
+        </div>
+    </div>
+
+    <!-- Seção de Atalhos Rápidos -->
+    <div class="card" style="margin-top: 30px;">
+        <h3>Ações Rápidas</h3>
+        <div style="display: flex; gap: 15px; margin-top: 15px;">
+            <button onclick="location.href='/static/cadastro_imovel.html'" style="background: #4b3f2f; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px;">Novo Imóvel</button>
+            <button onclick="location.href='/static/cadastro_cliente.html'" style="background: #a1866f; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px;">Novo Cliente</button>
+        </div>
+    </div>
+</div>
+
+<script>
+async function carregarDashboard() {
+    // 1. Verificação de Segurança: Pegar dados do usuário logado
+    const dadosBrutos = localStorage.getItem("usuario");
+    
+    if (!dadosBrutos || dadosBrutos === "undefined") {
+        console.warn("Acesso negado: Usuário não identificado.");
+        window.location.href = "/static/login.html";
+        return;
+    }
+
+    try {
+        const usuario = JSON.parse(dadosBrutos);
+        if (usuario && usuario.nome) {
+            document.getElementById("boasVindas").innerText = `Olá, ${usuario.nome}!`;
+        }
+
+        // 2. Buscar dados reais do Backend (Função 'get' deve existir no app.js)
+        // Usamos um valor padrão [] caso a resposta venha vazia
+        const imoveis = await get("/imoveis") || [];
+        const clientes = await get("/clientes") || [];
+
+        // Atualizar Totais
+        document.getElementById("totalImoveis").innerText = imoveis.length;
+        document.getElementById("totalClientes").innerText = clientes.length;
+        
+        // Filtros para Aluguel e Venda
+        const aluguelCount = imoveis.filter(i => i.tipo && i.tipo.toLowerCase() === "aluguel").length;
+        const vendaCount = imoveis.filter(i => i.tipo && i.tipo.toLowerCase() === "venda").length;
+
+        document.getElementById("totalAluguel").innerText = aluguelCount;
+        document.getElementById("totalVenda").innerText = vendaCount;
+
+    } catch (error) {
+        console.error("Erro crítico ao processar dados do dashboard:", error);
+        // Se o JSON.parse falhar, limpa o lixo e manda pro login
+        localStorage.clear();
+        // window.location.href = "/static/login.html";
+    }
+}
+
+// Executa assim que a página termina de carregar
+document.addEventListener("DOMContentLoaded", carregarDashboard);
+</script>
+
+</body>
+</html>

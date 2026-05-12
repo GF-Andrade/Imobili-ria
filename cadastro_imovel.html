@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Imóvel</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/app.js"></script>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div style="text-align: center; padding: 20px 0;">
+        <img src="/static/logo.png" class="logo-img" style="width: 80px;">
+        <h2 style="font-size: 1.2rem; color: #fff;">Cadastro de Imóvel</h2>
+    </div>
+    <hr style="opacity: 0.1; margin: 10px 20px;">
+    <a href="/static/dashboard.html">🏠 Dashboard</a>
+    <a href="/static/cadastro_imovel.html" class="active">➕ Imóvel</a>
+    <a href="/static/buscar_imoveis.html">🔎 Buscar</a>
+    <a href="/static/cadastro_cliente.html">👤 Cadastrar Cliente</a>
+    <a href="/static/lista_clientes.html">📋 Clientes</a>
+    <a href="/static/mapa_imoveis.html">📍 Mapa de Imóveis</a>
+    <a href="/static/login.html">🚪 Sair</a>
+</div>
+
+<div class="main">
+    <div class="card">
+        <h2 id="tituloPagina">Cadastrar Imóvel</h2>
+
+        <label>Título do Anúncio</label>
+        <input id="titulo" placeholder="Ex: Casa 3 quartos - Santa Mônica">
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+                <label>Tipo de Negócio</label>
+                <select id="tipo">
+                    <option value="venda">Venda</option>
+                    <option value="aluguel">Aluguel</option>
+                </select>
+            </div>
+            <div>
+                <label>Valor (R$)</label>
+                <input id="valor" type="number" placeholder="Valor">
+            </div>
+        </div>
+
+        <!-- SEÇÃO DE ENDEREÇO (Para o Mapa funcionar) -->
+        <h3 style="margin-top:20px; color:#4b3f2f;">📍 Localização</h3>
+        
+        <label>Rua/Avenida:</label>
+        <input type="text" id="rua" placeholder="Ex: Av. João Naves de Ávila">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+                <label>Número:</label>
+                <input type="text" id="numero" placeholder="Ex: 123">
+            </div>
+            <div>
+                <label>Bairro:</label>
+                <select id="bairro">
+                    <option value="">Carregando bairros...</option>
+                </select>
+            </div>
+        </div>
+
+        <label>Região de Uberlândia:</label>
+        <select id="regiao">
+            <option value="">Carregando regiões...</option>
+        </select>
+
+        <!-- DETALHES TÉCNICOS -->
+        <h3 style="margin-top:20px; color:#4b3f2f;">🏠 Detalhes</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+            <div>
+                <label>Quartos</label>
+                <input id="quartos" type="number" placeholder="0">
+            </div>
+            <div>
+                <label>Banheiros</label>
+                <input id="banheiros" type="number" placeholder="0">
+            </div>
+            <div>
+                <label>Vagas</label>
+                <input id="vagas" type="number" placeholder="0">
+            </div>
+        </div>
+
+        <!-- CAMPO DE OBSERVAÇÕES -->
+        <label style="display:block; margin-top:15px; font-weight:bold;">Observações Gerais:</label>
+        <textarea id="observacoes" placeholder="Ex: Sol da manhã, armários embutidos, aceita permuta..." 
+                  rows="4" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: sans-serif;"></textarea>
+
+        <!-- FOTOS -->
+        <label style="display:block; margin-top:15px; font-weight:bold;">Fotos do Imóvel</label>
+        <p style="font-size: 0.8rem; color: #666;">Dica: Você pode selecionar várias fotos de uma vez.</p>
+        <input type="file" id="foto" multiple accept="image/*">
+
+        <button onclick="cadastrarImovel()" style="margin-top:20px; background: #4b3f2f; color: white; font-weight: bold;">Salvar Imóvel</button>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    if (typeof popularFiltros === "function") {
+        popularFiltros();
+    }
+});
+
+// Feedback visual das fotos selecionadas
+document.getElementById('foto').addEventListener('change', function() {
+    const qtd = this.files.length;
+    let labelFeedback = document.getElementById('feedback-fotos');
+    
+    if (!labelFeedback) {
+        labelFeedback = document.createElement('p');
+        labelFeedback.id = 'feedback-fotos';
+        labelFeedback.style.color = "#27ae60";
+        labelFeedback.style.fontWeight = "bold";
+        labelFeedback.style.marginTop = "10px";
+        this.parentNode.insertBefore(labelFeedback, this.nextSibling);
+    }
+    
+    labelFeedback.innerText = qtd > 0 ? `📸 ${qtd} foto(s) selecionada(s)` : "";
+});
+</script>
+
+</body>
+</html>

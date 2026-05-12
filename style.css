@@ -1,0 +1,292 @@
+/* ==========================================================================
+   RESET E CONFIGURAÇÕES GERAIS
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f5f0e6, #e6d8c3);
+    color: #333;
+    min-height: 100vh;
+}
+
+/* ==========================================================================
+   SIDEBAR (MENU LATERAL)
+   ========================================================================== */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    background: #4b3f2f; /* Tom escuro para contraste profissional */
+    padding-top: 20px;
+    box-shadow: 2px 0 15px rgba(0,0,0,0.15);
+    z-index: 1000;
+    transition: 0.3s;
+}
+
+.sidebar h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #e6d8c3;
+    font-size: 1.2rem;
+    padding: 0 15px;
+}
+
+.sidebar a {
+    display: block;
+    padding: 15px 25px;
+    text-decoration: none;
+    color: #d6c3a3;
+    font-weight: 500;
+    transition: 0.3s;
+    border-left: 4px solid transparent;
+}
+
+.sidebar a:hover, .sidebar a.active {
+    background: #5d503d;
+    color: #fff;
+    border-left: 4px solid #a1866f;
+    padding-left: 30px;
+}
+
+.logo-img {
+    width: 70px;
+    height: auto;
+    display: block;
+    margin: 0 auto 15px auto;
+    border-radius: 12px;
+}
+
+/* ==========================================================================
+   CONTEÚDO PRINCIPAL (MAIN)
+   ========================================================================== */
+.main {
+    margin-left: 250px; /* Alinhado com a largura da sidebar */
+    padding: 40px;
+    transition: 0.3s;
+}
+
+h1, h2, h3 {
+    color: #4b3f2f;
+    margin-bottom: 20px;
+}
+
+/* ==========================================================================
+   CARDS E DASHBOARD
+   ========================================================================== */
+.card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
+    border: 1px solid rgba(214, 195, 163, 0.3);
+}
+
+/* Números grandes no Dashboard */
+#totalImoveis, #totalAluguel, #totalVenda, #totalClientes {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #a1866f;
+    margin-top: 10px;
+    display: block;
+}
+
+/* ==========================================================================
+   FORMULÁRIOS E INPUTS
+   ========================================================================== */
+label {
+    display: block;
+    margin-top: 15px;
+    font-weight: 600;
+    color: #4b3f2f;
+    font-size: 0.9rem;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px 15px;
+    margin-top: 8px;
+    border-radius: 8px;
+    border: 1px solid #d6c3a3;
+    background: #f9f6f1;
+    outline: none;
+    font-size: 1rem;
+    transition: 0.3s;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #a1866f;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(161, 134, 111, 0.1);
+}
+
+/* ==========================================================================
+   BOTÕES
+   ========================================================================== */
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 15px;
+    background: #a1866f;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #8c725c;
+    transform: translateY(-1px);
+}
+
+/* Botões menores para ações em listas */
+.btn-acao {
+    width: auto;
+    padding: 8px 15px;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+}
+
+/* ==========================================================================
+   LISTAGENS E GRIDS (Busca de Imóveis)
+   ========================================================================== */
+.lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.lista .card {
+    padding: 0; /* Card de imóvel com imagem colada no topo */
+    overflow: hidden;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.lista .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+/* Estilo da Imagem no Card da Lista */
+.lista .card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover; /* Garante que fotos diferentes não quebrem o layout */
+    border-radius: 14px 14px 0 0;
+    margin-top: 0;
+}
+
+.lista .card-content {
+    padding: 20px;
+}
+
+/* ==========================================================================
+   MAPA (LEAFLET)
+   ========================================================================== */
+#mapa {
+    width: 100%;
+    height: 600px;
+    border-radius: 15px;
+    border: 2px solid #d6c3a3;
+    z-index: 1;
+}
+
+/* Customização básica do Popup do Mapa */
+.leaflet-popup-content-wrapper {
+    border-radius: 10px;
+    padding: 5px;
+}
+
+/* ==========================================================================
+   GALERIA DE FOTOS (DETALHES)
+   ========================================================================== */
+.galeria-container {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding: 20px 0;
+    scroll-behavior: smooth;
+}
+
+.galeria-container img {
+    height: 400px;
+    min-width: 300px;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Scrollbar personalizada para a galeria */
+.galeria-container::-webkit-scrollbar {
+    height: 8px;
+}
+.galeria-container::-webkit-scrollbar-track {
+    background: #f4f1ee;
+    border-radius: 10px;
+}
+.galeria-container::-webkit-scrollbar-thumb {
+    background: #a1866f;
+    border-radius: 10px;
+}
+
+/* ==========================================================================
+   UTILITÁRIOS E BUSCA
+   ========================================================================== */
+.busca-box {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.busca-box .input-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ==========================================================================
+   RESPONSIVIDADE (MOBILE)
+   ========================================================================== */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px;
+    }
+    
+    .sidebar h2, .sidebar a span, .brand-name {
+        display: none;
+    }
+    
+    .sidebar a {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .main {
+        margin-left: 70px;
+        padding: 20px;
+    }
+    
+    .busca-box {
+        flex-direction: column;
+    }
+    
+    .busca-box .input-group, .busca-box button {
+        width: 100%;
+    }
+}

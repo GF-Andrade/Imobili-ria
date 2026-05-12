@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Clientes - Sistema Imobiliário</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+    
+    <script src="/static/app.js"></script>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div style="text-align: center; padding: 20px 0;">
+        <img src="/static/logo.png" class="logo-img" style="width: 80px;">
+        <h2 style="font-size: 1.1rem; color: #fff; margin-top: 10px;">Lista de Clientes</h2>
+    </div>
+    <hr style="opacity: 0.1; margin: 0 20px 20px 20px;">
+
+    <a href="/static/dashboard.html">🏠 Dashboard</a>
+    <a href="/static/cadastro_imovel.html">➕ Imóvel</a>
+    <a href="/static/buscar_imoveis.html">🔎 Buscar</a>
+    <a href="/static/cadastro_cliente.html">👤 Cadastrar Cliente</a>
+    <a href="/static/lista_clientes.html">📋 Clientes</a>
+    <a href="/static/mapa_imoveis.html">📍 Mapa de Imóveis</a>
+    <a href="/static/login.html">🚪 Sair</a>
+</div>
+
+<div class="main">
+
+    <div class="card">
+        <h2>Gestão de Clientes</h2>
+        <p>Visualize e busque por clientes interessados em Uberlândia.</p>
+
+        <div class="busca-box">
+            <input id="buscaCliente" placeholder="Buscar por nome ou e-mail...">
+            <button onclick="buscarClientes()" style="width: auto; padding: 12px 30px;">Buscar</button>
+        </div>
+    </div>
+
+    <div id="listaClientes" class="lista"></div>
+
+</div>
+
+<script>
+// Função de busca local para filtrar a lista já carregada
+async function buscarClientes() {
+    const termo = document.getElementById("buscaCliente").value.toLowerCase();
+    const lista = await get("/clientes"); // Função 'get' definida no seu app.js
+    
+    if (!lista) return;
+
+    const filtrados = lista.filter(c => 
+        c.nome.toLowerCase().includes(termo) || 
+        (c.email && c.email.toLowerCase().includes(termo))
+    );
+
+    renderizarListaClientes(filtrados);
+}
+
+// Função para renderizar os cards (extraída para ser reutilizável)
+function renderizarListaClientes(clientes) {
+    const container = document.getElementById("listaClientes");
+    if (!container) return;
+
+    if (clientes.length === 0) {
+        container.innerHTML = "<p style='text-align:center; padding:20px;'>Nenhum cliente encontrado.</p>";
+        return;
+    }
+
+    container.innerHTML = clientes.map(c => `
+        <div class="card-cliente" style="display:flex; justify-content:space-between; align-items:center; padding:15px; margin-bottom:10px; background:white; border-radius:8px; border:1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div onclick="verDetalhesCliente(${c.id})" style="cursor:pointer; flex-grow: 1;">
+                <strong style="font-size:1.1rem; color:#4b3f2f;">${c.nome}</strong><br>
+                <span style="color:#666;">📞 ${c.telefone}</span><br>
+                <small style="color:#999;">${c.email || 'Sem e-mail'}</small>
+            </div>
+            <button onclick="deletarCliente(${c.id})" style="background:#fdeaea; color:#c0392b; border:1px solid #c0392b; padding:8px 15px; border-radius:6px; cursor:pointer; font-weight:bold;">
+                Excluir
+            </button>
+        </div>
+    `).join("");
+}
+
+// Inicialização
+document.addEventListener("DOMContentLoaded", async () => {
+    // Carrega a lista inicial
+    const clientes = await get("/clientes");
+    if (clientes) {
+        renderizarListaClientes(clientes);
+    }
+});
+</script>
+
+</body>
+</html>
